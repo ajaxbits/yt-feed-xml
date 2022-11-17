@@ -1,9 +1,13 @@
+use hyper::{body, Client};
+use hyper_tls::HttpsConnector;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
+mod channel;
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename = "feed")]
-pub struct YtFeed {
+pub struct Channel {
     pub link: Vec<Link>,
     pub id: XmlContentString,
     #[serde(rename = "channelId")]
@@ -15,10 +19,24 @@ pub struct YtFeed {
     pub videos: Vec<Video>,
 }
 
-impl YtFeed {
-    pub async fn from_channel_id(id: &str) -> Self {
-        // YtFeed::deserialize(&mut de).unwrap()
+impl Channel {
+    pub async fn new(id: &str) -> Self {
+        let uri = format!(
+            "https://www.youtube.com/feeds/videos.xml?channel_id={}",
+            &id
+        )
+        .parse::<hyper::http::Uri>()
+        .expect("could not parse url as Uri for some reason");
+
+        let https = HttpsConnector::new();
+        let client = Client::builder().build::<_, hyper::Body>(https);
+
+        let body = client.get(uri).await.expect("could not get feed for id");
+        let body = body::to_bytes(body).await.unwrap();
+        let body = String::from_utf8(body.into_iter().collect()).unwrap();
+
         todo!()
+        // Channel::from(body)
     }
 }
 
@@ -116,7 +134,6 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+        todo!()
     }
 }
