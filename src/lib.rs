@@ -13,6 +13,8 @@ pub struct Channel {
     #[serde(rename = "channelId")]
     pub channel_id: XmlContentString,
     pub title: XmlContentString,
+    // TODO fixme
+    // HACK wow
     pub author: Author,
     pub published: XmlContentDateTime,
     #[serde(rename = "entry")]

@@ -32,6 +32,7 @@
             pkgconfig
 
             rust-env
+            yt-dlp
 
             yq
             fx
