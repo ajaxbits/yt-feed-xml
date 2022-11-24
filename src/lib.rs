@@ -1,27 +1,34 @@
-use hyper::{body, Client};
+use derive_builder::Builder;
+use hyper::{
+    body::{self, Buf},
+    Client,
+};
 use hyper_tls::HttpsConnector;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
-mod channel;
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Builder)]
 #[serde(rename = "feed")]
-pub struct Channel {
-    pub link: Vec<Link>,
-    pub id: XmlContentString,
+pub struct Feed {
+    link: Vec<Link>,
+    id: XmlContentString,
+
     #[serde(rename = "channelId")]
-    pub channel_id: XmlContentString,
-    pub title: XmlContentString,
-    // TODO fixme
-    // HACK wow
-    pub author: Author,
-    pub published: XmlContentDateTime,
+    channel_id: XmlContentString,
+
+    #[serde(rename = "playlistId")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    playlist_id: Option<XmlContentString>,
+
+    title: XmlContentString,
+    author: Author,
+    published: XmlContentDateTime,
+
     #[serde(rename = "entry")]
-    pub videos: Vec<Video>,
+    videos: Option<Vec<Video>>,
 }
 
-impl Channel {
+impl Feed {
     pub async fn new(id: &str) -> Self {
         let uri = format!(
             "https://www.youtube.com/feeds/videos.xml?channel_id={}",
@@ -34,11 +41,12 @@ impl Channel {
         let client = Client::builder().build::<_, hyper::Body>(https);
 
         let body = client.get(uri).await.expect("could not get feed for id");
-        let body = body::to_bytes(body).await.unwrap();
-        let body = String::from_utf8(body.into_iter().collect()).unwrap();
+        let body = body::to_bytes(body).await.unwrap().reader();
 
-        todo!()
-        // Channel::from(body)
+        let mut de =
+            serde_xml_rs::Deserializer::new_from_reader(body).non_contiguous_seq_elements(true);
+
+        Feed::deserialize(&mut de).expect("could not deseralize xml!")
     }
 }
 
@@ -91,7 +99,7 @@ pub struct MediaGroup {
     pub title: XmlContentString,
     pub content: MediaContent,
     pub thumbnail: MediaThumbnail,
-    pub description: XmlContentString,
+    pub description: Option<XmlContentString>,
     pub community: MediaCommunity,
 }
 
@@ -134,8 +142,17 @@ pub struct MediaStatistics {
 mod tests {
     use super::*;
 
-    #[test]
-    fn it_works() {
-        todo!()
+    #[tokio::test]
+    async fn test_linus() {
+        let linus = Feed::new("UCXuqSBlHAE6Xw-yeJA0Tunw").await;
+        assert_eq!(linus.id.value, "yt:channel:UCXuqSBlHAE6Xw-yeJA0Tunw");
+        assert_eq!(linus.channel_id.value, "UCXuqSBlHAE6Xw-yeJA0Tunw");
+    }
+
+    #[tokio::test]
+    #[should_panic]
+    async fn test_linus_missing_playlist() {
+        let linus = Feed::new("UCXuqSBlHAE6Xw-yeJA0Tunw").await;
+        let _panic = linus.playlist_id.unwrap();
     }
 }
