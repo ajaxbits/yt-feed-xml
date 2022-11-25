@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use async_trait::async_trait;
 use hyper::{
     body::{self, Buf},
@@ -16,7 +14,7 @@ struct Feed {
     id: XmlContentString,
 
     #[serde(rename = "channelId")]
-    channel_id: XmlContentString,
+    channel_id: ChannelId,
 
     #[serde(rename = "playlistId")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -120,8 +118,19 @@ impl Generate for Channel {
             .videos
             .map(|videos| videos.into_iter().map(Video::from).collect());
 
+        let id = match feed.channel_id.value {
+            Some(id) => id,
+            None => feed
+                .author
+                .uri
+                .value
+                .split("/channel/")
+                .collect::<Vec<&str>>()[1]
+                .to_string(),
+        };
+
         Channel {
-            id: feed.id.value,
+            id,
             title: feed.title.value,
             author: feed.author.name.value,
             channel_url: feed.author.uri.value,
@@ -129,6 +138,12 @@ impl Generate for Channel {
             videos,
         }
     }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+struct ChannelId {
+    #[serde(rename = "$value")]
+    value: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -225,10 +240,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_linus() {
-        let linus = Feed::new("UCXuqSBlHAE6Xw-yeJA0Tunw").await;
-        assert_eq!(linus.id.value, "yt:channel:UCXuqSBlHAE6Xw-yeJA0Tunw");
-        assert_eq!(linus.channel_id.value, "UCXuqSBlHAE6Xw-yeJA0Tunw");
-        assert_eq!(linus.title.value, "Linus Tech Tips");
+        let linus = Channel::new("UCXuqSBlHAE6Xw-yeJA0Tunw").await;
+        assert_eq!(linus.id, "UCXuqSBlHAE6Xw-yeJA0Tunw");
+        assert_eq!(linus.title, "Linus Tech Tips");
     }
 
     #[tokio::test]
