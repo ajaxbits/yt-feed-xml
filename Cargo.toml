@@ -3,6 +3,7 @@ name = "yt-feed-xml"
 version = "0.1.0"
 edition = "2021"
 license = "Unlicense"
+description = "A crate used to parse data from Youtube's XML feeds. WIP USE AT YOUR OWN RISK."
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
