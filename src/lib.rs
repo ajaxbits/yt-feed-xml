@@ -111,9 +111,8 @@ impl From<XmlVideo> for Video {
     }
 }
 
-#[async_trait]
-impl Generate for Channel {
-    async fn new(id: &str) -> Self {
+impl Channel {
+    pub async fn new(id: &str) -> Self {
         let uri = format!(
             "https://www.youtube.com/feeds/videos.xml?channel_id={}",
             &id
