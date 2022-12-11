@@ -66,7 +66,7 @@ pub struct Video {
 }
 
 #[async_trait]
-trait Generate {
+pub trait Generate {
     async fn new(id: &str) -> Self;
 }
 
