@@ -248,7 +248,10 @@ mod tests {
     #[tokio::test]
     #[should_panic]
     async fn test_linus_missing_playlist() {
-        let linus = Feed::new("UCXuqSBlHAE6Xw-yeJA0Tunw").await;
+        let linus = Feed::new(
+            "https://www.youtube.com/feeds/videos.xml?channel_id=UCXuqSBlHAE6Xw-yeJA0Tunw",
+        )
+        .await;
         let _panic = linus.playlist_id.unwrap();
     }
 }
