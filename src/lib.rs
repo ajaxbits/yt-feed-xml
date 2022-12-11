@@ -30,37 +30,39 @@ struct Feed {
 
 #[derive(Serialize, Deserialize, Debug, Clone, derive_builder::Builder)]
 pub struct Channel {
-    id: String,
-    title: String,
-    author: String,
-    channel_url: String,
-    published: chrono::DateTime<chrono::Utc>,
-    videos: Option<Vec<Video>>,
+    pub id: String,
+    pub title: String,
+    pub author: String,
+    pub channel_url: String,
+    pub published: chrono::DateTime<chrono::Utc>,
+    pub videos: Option<Vec<Video>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, derive_builder::Builder)]
 pub struct Playlist {
-    id: String,
-    title: String,
-    channel_id: String,
-    author: String,
-    url: String,
-    published: chrono::DateTime<chrono::Utc>,
-    videos: Option<Vec<Video>>,
+    pub id: String,
+    pub title: String,
+    pub channel_id: String,
+    pub author: String,
+    pub url: String,
+    pub published: chrono::DateTime<chrono::Utc>,
+    pub videos: Option<Vec<Video>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Video {
-    id: String,
-    url: String,
-    channel_id: String,
-    title: String,
-    author: String,
-    author_url: String,
-    published: chrono::DateTime<chrono::Utc>,
-    updated: chrono::DateTime<chrono::Utc>,
-    group: MediaGroup,
+    pub id: String,
+    pub title: String,
+    pub author: String,
+    pub description: String,
+    pub thumbnail: String,
+    pub published: chrono::DateTime<chrono::Utc>,
+    pub updated: chrono::DateTime<chrono::Utc>,
+    pub url: String,
+    pub author_url: String,
+    pub channel_id: String,
+    pub views: u64,
 }
 
 #[async_trait]
@@ -99,7 +101,12 @@ impl From<XmlVideo> for Video {
             author_url: video.author.uri.value,
             published: video.published.value,
             updated: video.updated.value,
-            group: video.group,
+            description: match video.group.description {
+                Some(s) => s.value,
+                None => String::new(),
+            },
+            thumbnail: video.group.thumbnail.url,
+            views: video.group.community.statistics.views,
         }
     }
 }
