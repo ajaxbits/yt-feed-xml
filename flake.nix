@@ -28,12 +28,13 @@
       {
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
+            rust-env
+
             openssl
             pkgconfig
+            cargo-semver-checks
 
-            rust-env
             yt-dlp
-
             yq
             fx
           ];
