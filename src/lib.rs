@@ -10,16 +10,8 @@ mod channel;
 mod playlist;
 mod xml_feed;
 
-#[derive(Serialize, Deserialize, Debug, Clone, derive_builder::Builder)]
-struct Feed {
-    title: String,
-    author: String,
-    channel_id: String,
-    playlist_id: Option<String>,
-    url: String,
-    published: chrono::DateTime<chrono::Utc>,
-    videos: Option<Vec<Video>>,
-}
+pub use channel::Channel;
+pub use playlist::Playlist;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -35,6 +27,17 @@ pub struct Video {
     pub author_url: String,
     pub channel_id: String,
     pub views: u64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, derive_builder::Builder)]
+struct Feed {
+    title: String,
+    author: String,
+    channel_id: String,
+    playlist_id: Option<String>,
+    url: String,
+    published: chrono::DateTime<chrono::Utc>,
+    videos: Option<Vec<Video>>,
 }
 
 impl Feed {
