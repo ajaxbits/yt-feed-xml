@@ -57,8 +57,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_sinclair_lore_playlist() {
-        // let sinclair_lore_va_masq = Playlist::new("PLOIA4n5j7KcYj52DQ9orEBJDA9IqBTB3I").await;
-        let sinclair_lore_va_masq = Playlist::new("PLOIA4n5j7KcYj52DQ9orEBJDA9IqBTB3").await;
+        let sinclair_lore_va_masq = Playlist::new("PLOIA4n5j7KcYj52DQ9orEBJDA9IqBTB3I").await;
         assert_eq!(
             sinclair_lore_va_masq.id,
             "PLOIA4n5j7KcYj52DQ9orEBJDA9IqBTB3I"

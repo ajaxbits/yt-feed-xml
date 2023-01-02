@@ -18,7 +18,6 @@ pub struct Feed {
 
 impl Feed {
     pub async fn new(uri: &str) -> Result<Self, color_eyre::Report> {
-
         let uri = uri.parse::<hyper::http::Uri>()?;
 
         let https = hyper_tls::HttpsConnector::new();

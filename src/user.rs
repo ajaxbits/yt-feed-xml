@@ -47,7 +47,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_cgpgrey_user() {
-        let cgpgrey_user = User::new("cgpgre").await;
+        let cgpgrey_user = User::new("cgpgrey").await;
         assert_eq!(cgpgrey_user.id, "UC2C_jShtL725hvbm1arSV9w");
         assert_eq!(cgpgrey_user.title, "CGP Grey");
     }
