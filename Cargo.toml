@@ -1,6 +1,6 @@
 [package]
 name = "yt-feed-xml"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 license = "Unlicense"
 description = "A crate used to parse data from Youtube's XML feeds. WIP USE AT YOUR OWN RISK."
