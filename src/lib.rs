@@ -7,6 +7,7 @@ mod xml_feed;
 pub use channel::Channel;
 pub use playlist::Playlist;
 pub use user::User;
+pub use video::Video;
 
 #[cfg(test)]
 mod tests {
