@@ -37,14 +37,15 @@ impl TryFrom<Feed> for Playlist {
     type Error = color_eyre::Report;
 
     fn try_from(f: Feed) -> Result<Self, Self::Error> {
+        let id = f.playlist_id.ok_or_else(|| {
+            color_eyre::eyre::eyre!("Could not find playlist id for given Playlist.")
+        })?;
         Ok(Self {
-            id: f.playlist_id.ok_or_else(|| {
-                color_eyre::eyre::eyre!("Could not find playlist id for given Playlist.")
-            })?,
+            id: id.clone(),
             title: f.title,
             author: f.author,
             channel_id: f.channel_id,
-            url: f.url,
+            url: format!("https://www.youtube.com/playlist?list={id}"),
             published: f.published,
             videos: f.videos,
         })
@@ -61,6 +62,10 @@ mod tests {
         assert_eq!(
             sinclair_lore_va_masq.id,
             "PLOIA4n5j7KcYj52DQ9orEBJDA9IqBTB3I"
+        );
+        assert_eq!(
+            sinclair_lore_va_masq.url,
+            "https://www.youtube.com/playlist?list=PLOIA4n5j7KcYj52DQ9orEBJDA9IqBTB3I"
         );
         assert_eq!(sinclair_lore_va_masq.channel_id, "UCH6IMeS2HVdTJZU4BlN6ODg");
         assert_eq!(
