@@ -1,8 +1,9 @@
+use color_eyre::eyre::Context;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::Feed;
-use crate::Video;
+use crate::video::Video;
+use crate::xml_feed::Feed;
 
 #[derive(Serialize, Deserialize, Debug, Clone, derive_builder::Builder)]
 pub struct Channel {
@@ -21,7 +22,10 @@ impl Channel {
             &id
         );
 
-        let feed: Feed = Feed::new(&uri).await;
+        let feed: Feed = Feed::new(&uri)
+            .await
+            .wrap_err("Failed to create Channel.")
+            .unwrap();
         feed.into()
     }
 }
@@ -56,7 +60,8 @@ mod tests {
         let linus = Feed::new(
             "https://www.youtube.com/feeds/videos.xml?channel_id=UCXuqSBlHAE6Xw-yeJA0Tunw",
         )
-        .await;
+        .await
+        .unwrap();
         let _panic = linus.playlist_id.unwrap();
     }
 }

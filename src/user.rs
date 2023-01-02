@@ -1,6 +1,7 @@
+use color_eyre::eyre::Context;
 use serde::{Deserialize, Serialize};
 
-use crate::{Feed, Video};
+use crate::{video::Video, xml_feed::Feed};
 
 #[derive(Serialize, Deserialize, Debug, Clone, derive_builder::Builder)]
 pub struct User {
@@ -19,7 +20,10 @@ impl User {
             &user_name
         );
 
-        let feed: Feed = Feed::new(&uri).await;
+        let feed: Feed = Feed::new(&uri)
+            .await
+            .wrap_err("Failed to create User.")
+            .unwrap();
         feed.into()
     }
 }
@@ -43,7 +47,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_cgpgrey_user() {
-        let cgpgrey_user = User::new("cgpgrey").await;
+        let cgpgrey_user = User::new("cgpgre").await;
         assert_eq!(cgpgrey_user.id, "UC2C_jShtL725hvbm1arSV9w");
         assert_eq!(cgpgrey_user.title, "CGP Grey");
     }
@@ -51,7 +55,9 @@ mod tests {
     #[tokio::test]
     #[should_panic]
     async fn test_cgpgrey_user_missing_playlist() {
-        let cgpgrey_user = Feed::new("https://www.youtube.com/feeds/videos.xml?user=cgpgrey").await;
+        let cgpgrey_user = Feed::new("https://www.youtube.com/feeds/videos.xml?user=cgpgrey")
+            .await
+            .unwrap();
         let _panic = cgpgrey_user.playlist_id.unwrap();
     }
 }

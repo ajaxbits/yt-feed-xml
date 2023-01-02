@@ -1,8 +1,8 @@
+use color_eyre::eyre::Context;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::Feed;
-use crate::Video;
+use crate::{video::Video, xml_feed::Feed};
 
 #[derive(Serialize, Deserialize, Debug, Clone, derive_builder::Builder)]
 pub struct Playlist {
@@ -22,22 +22,32 @@ impl Playlist {
             &id
         );
 
-        let feed: Feed = Feed::new(&uri).await;
-        feed.into()
+        let feed: Feed = Feed::new(&uri)
+            .await
+            .wrap_err("Failed to create Feed from given ID.")
+            .unwrap();
+
+        feed.try_into()
+            .wrap_err("Failed to convert Feed to Playlist.")
+            .unwrap()
     }
 }
 
-impl From<Feed> for Playlist {
-    fn from(f: Feed) -> Self {
-        Self {
-            id: f.playlist_id.expect("all Playlists have a playlist_id"),
+impl TryFrom<Feed> for Playlist {
+    type Error = color_eyre::Report;
+
+    fn try_from(f: Feed) -> Result<Self, Self::Error> {
+        Ok(Self {
+            id: f.playlist_id.ok_or_else(|| {
+                color_eyre::eyre::eyre!("Could not find playlist id for given Playlist.")
+            })?,
             title: f.title,
             author: f.author,
             channel_id: f.channel_id,
             url: f.url,
             published: f.published,
             videos: f.videos,
-        }
+        })
     }
 }
 
@@ -47,7 +57,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_sinclair_lore_playlist() {
-        let sinclair_lore_va_masq = Playlist::new("PLOIA4n5j7KcYj52DQ9orEBJDA9IqBTB3I").await;
+        // let sinclair_lore_va_masq = Playlist::new("PLOIA4n5j7KcYj52DQ9orEBJDA9IqBTB3I").await;
+        let sinclair_lore_va_masq = Playlist::new("PLOIA4n5j7KcYj52DQ9orEBJDA9IqBTB3").await;
         assert_eq!(
             sinclair_lore_va_masq.id,
             "PLOIA4n5j7KcYj52DQ9orEBJDA9IqBTB3I"
