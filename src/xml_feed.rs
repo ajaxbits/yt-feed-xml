@@ -71,12 +71,8 @@ impl Feed {
         };
 
         let videos = feed.videos;
-        let videos: Option<Vec<Video>> = videos.map(|vid_vec| {
-            vid_vec
-                .into_iter()
-                .map(|xml_video| Video::from(xml_video))
-                .collect()
-        });
+        let videos: Option<Vec<Video>> =
+            videos.map(|videos| videos.into_iter().map(Video::from).collect());
 
         Ok(Feed {
             title: feed.title.value,
