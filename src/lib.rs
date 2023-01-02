@@ -8,10 +8,12 @@ use xml_feed::{XmlFeed, XmlVideo};
 
 mod channel;
 mod playlist;
+mod user;
 mod xml_feed;
 
 pub use channel::Channel;
 pub use playlist::Playlist;
+pub use user::User;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
